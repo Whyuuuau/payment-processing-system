@@ -160,3 +160,11 @@ appendonly.aof
 *-credentials.json
 service-account.json
 google-credentials.json
+
+### Local Helper Files (Not for GitHub) ###
+GITHUB_SETUP.md
+GIT_COMMANDS.md
+git-setup.bat
+cleanup-repo.bat
+CLEANUP_SUMMARY.md
+*.local.md

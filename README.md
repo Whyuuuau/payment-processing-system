@@ -43,7 +43,8 @@ Enterprise-grade payment processing system yang dapat handle **millions of trans
 ### 1. Clone & Setup
 
 ```bash
-cd "e:\METRODATA\Learning\Try 1"
+git clone https://github.com/YOUR_USERNAME/payment-processing-system.git
+cd payment-processing-system
 ```
 
 ### 2. Start Infrastructure

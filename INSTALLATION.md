@@ -169,7 +169,7 @@ docker exec -it <kafka-container-id> kafka-topics --list --bootstrap-server loca
 
 ```bash
 # Navigate to project directory
-cd "e:\METRODATA\Learning\Try 1"
+cd /path/to/payment-processing-system
 
 # Clean and build all modules
 mvn clean install -DskipTests
