@@ -13,11 +13,14 @@ import org.springframework.security.web.SecurityFilterChain;
 /**
  * Spring Security configuration
  * 
- * NOTE: This is a PERMISSIVE configuration for initial setup
- * In production, you MUST:
- * 1. Implement proper JWT authentication
- * 2. Add role-based authorization
- * 3. Secure all endpoints appropriately
+ * WARNING: This is TEMPORARY permissive config for development
+ * All endpoints are currently OPEN - need to add JWT auth before production!
+ * 
+ * TODO (HIGH PRIORITY):
+ * 1. Implement JwtAuthenticationFilter
+ * 2. Create UserDetailsService 
+ * 3. Lock down /api/v1/payments/** endpoints
+ * 4. Add role-based authorization
  */
 @Configuration
 @EnableWebSecurity
@@ -27,16 +30,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // Disable CSRF for stateless API (using JWT)
-            .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf.disable())  // disabled for REST API with JWT
             
-            // Stateless session management
             .sessionManagement(session -> 
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
-            // Authorization rules
             .authorizeHttpRequests(auth -> auth
-                // Public endpoints - no authentication required
+                // public endpoints
                 .requestMatchers(
                     "/api/v1/payments/health",
                     "/actuator/health",
@@ -46,11 +46,12 @@ public class SecurityConfig {
                     "/swagger-ui.html"
                 ).permitAll()
                 
-                // Actuator endpoints - require authentication (comment out temporarily)
+                // FIXME: lock these down after JWT is implemented
+                // actuator should require auth in prod
                 // .requestMatchers("/actuator/**").authenticated()
                 
-                // All payment endpoints - TEMPORARILY PERMIT ALL
-                // TODO: Change to .authenticated() after implementing JWT
+                // payment endpoints - currently OPEN for testing
+                // this is a HUGE security hole, fix ASAP
                 .requestMatchers("/api/v1/payments/**").permitAll()
                 
                 // All other requests require authentication

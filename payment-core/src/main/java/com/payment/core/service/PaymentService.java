@@ -36,6 +36,7 @@ public class PaymentService {
     private final IdempotencyService idempotencyService;
     private final PaymentMapper paymentMapper;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final PaymentGatewayService gatewayService;
 
     private static final String PAYMENT_TOPIC = "payment-events";
     private static final int MAX_RETRY_ATTEMPTS = 3;
@@ -85,10 +86,7 @@ public class PaymentService {
         return paymentMapper.toResponse(savedPayment);
     }
 
-    /**
-     * Process payment (typically called asynchronously)
-     * Implements retry logic for optimistic locking failures
-     */
+    // process payment async - gets called from Kafka consumer
     @Transactional
     public PaymentResponse processPayment(String paymentId) {
         log.info("Processing payment: {}", paymentId);
@@ -260,17 +258,11 @@ public class PaymentService {
     }
 
     /**
-     * Simulate payment processing (replace with actual gateway integration)
+     * Process payment via gateway
+     * Calls external payment gateway service
      */
     private boolean simulatePaymentProcessing(Payment payment) {
-        try {
-            // Simulate processing time
-            Thread.sleep(100);
-            // Simulate 95% success rate
-            return Math.random() < 0.95;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return false;
-        }
+        // call actual gateway (well, simulated for now but architecture is there)
+        return gatewayService.processPaymentWithGateway(payment);
     }
 }
