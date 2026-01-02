@@ -1,21 +1,19 @@
-# Payment Processing System - Application Configuration
-
 spring:
   application:
     name: payment-processing-system
 
   # Database Configuration
   datasource:
-    url: jdbc:postgresql://localhost:5432/payment_db
-    username: payment_user
-    password: payment_pass
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/payment_db}
+    username: ${DB_USERNAME:payment_user}
+    password: ${DB_PASSWORD:payment_pass}
     driver-class-name: org.postgresql.Driver
 
   # JPA/Hibernate
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: false
+    show-sql: ${SHOW_SQL:false}
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -36,9 +34,9 @@ spring:
   # Redis Configuration
   data:
     redis:
-      host: localhost
-      port: 6379
-      password:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
       timeout: 3000ms
       lettuce:
         pool:
@@ -49,9 +47,9 @@ spring:
 
   # Kafka Configuration
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
-      group-id: payment-service-group
+      group-id: ${KAFKA_CONSUMER_GROUP:payment-service-group}
       auto-offset-reset: earliest
       enable-auto-commit: false
     producer:

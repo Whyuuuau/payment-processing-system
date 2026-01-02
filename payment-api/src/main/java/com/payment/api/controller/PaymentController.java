@@ -7,6 +7,13 @@ import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +37,7 @@ import java.util.concurrent.CompletableFuture;
 @RestController
 @RequestMapping("/api/v1/payments")
 @RequiredArgsConstructor
+@Tag(name = "Payments", description = "Payment processing endpoints")
 public class PaymentController {
 
     private final PaymentService paymentService;
@@ -44,6 +52,17 @@ public class PaymentController {
     @CircuitBreaker(name = "paymentService", fallbackMethod = "createPaymentFallback")
     @RateLimiter(name = "paymentApi")
     @Bulkhead(name = "paymentBulkhead", type = Bulkhead.Type.THREADPOOL)
+    @Operation(
+        summary = "Create new payment",
+        description = "Creates a new payment transaction with idempotency protection"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Payment created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request data"),
+        @ApiResponse(responseCode = "409", description = "Duplicate idempotency key"),
+        @ApiResponse(responseCode = "429", description = "Rate limit exceeded"),
+        @ApiResponse(responseCode = "503", description = "Service unavailable")
+    })
     public ResponseEntity<PaymentResponse> createPayment(@Valid @RequestBody PaymentRequest request) {
         log.info("Received payment request for merchant: {}", request.getMerchantId());
         
@@ -61,7 +80,13 @@ public class PaymentController {
     @GetMapping("/{id}")
     @CircuitBreaker(name = "paymentService", fallbackMethod = "getPaymentFallback")
     @RateLimiter(name = "paymentApi")
-    public ResponseEntity<PaymentResponse> getPayment(@PathVariable String id) {
+    @Operation(summary = "Get payment by ID", description = "Retrieves payment details by payment ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Payment found"),
+        @ApiResponse(responseCode = "404", description = "Payment not found")
+    })
+    public ResponseEntity<PaymentResponse> getPayment(
+        @Parameter(description = "Payment ID") @PathVariable String id) {
         log.info("Retrieving payment: {}", id);
         PaymentResponse response = paymentService.getPayment(id);
         return ResponseEntity.ok(response);
